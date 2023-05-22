@@ -15,6 +15,12 @@ pub fn add(){
         let registers_mutex = &*registers;
         let mut registers_guard = registers_mutex.lock().unwrap();
         let pointer_usize = pointer as usize;
+
+        if (*registers_guard)[pointer_usize] == u8::MAX {
+            (*registers_guard)[pointer_usize] = 0;
+            return;
+        }
+
         (*registers_guard)[pointer_usize] += 1;
     }
 }
@@ -22,9 +28,17 @@ pub fn add(){
 // on -
 pub fn subtract(){
     unsafe{
+
+
         let registers_mutex = &*registers;
         let mut registers_guard = registers_mutex.lock().unwrap();
         let pointer_usize = pointer as usize;
+
+        if (*registers_guard)[pointer_usize] == 0 {
+            (*registers_guard)[pointer_usize] = u8::MAX;
+            return;
+        }
+
         (*registers_guard)[pointer_usize] -= 1;
     }
 }
@@ -33,6 +47,10 @@ pub fn subtract(){
 pub fn moveUp(){
 
     unsafe{
+        if pointer == u8::MAX {
+            pointer = 0;
+            return;
+        }
         pointer += 1;
     }
     
@@ -42,6 +60,10 @@ pub fn moveUp(){
 pub fn moveDown(){
 
     unsafe{
+        if pointer == 0 {
+            pointer = u8::MAX;
+            return;
+        }
         pointer -= 1;
     }
 }

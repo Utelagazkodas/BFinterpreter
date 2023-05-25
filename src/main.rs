@@ -1,6 +1,10 @@
+use std::fmt::Write;
+use std::ptr::null;
 use std::{*};
 use std::collections::HashMap;
 mod bfcommands;
+
+static mut source : Option<String> = None;
 
 fn main() {
 
@@ -9,15 +13,9 @@ fn main() {
 
     commands = initializeHashmap(commands);
 
-    let mut source = fs::read_to_string("bf/main.bf")
-        .expect("cum");
-
-    source = removeWhiteSpace(source, &commands);
-
-    for command in source.chars(){
-        if let Some(&function) = commands.get(&command) {
-            function();
-        }
+    unsafe {
+        //reads and formats the file
+        source = Some(removeWhiteSpace(fs::read_to_string("bf/main.bf").unwrap(), &commands));
     }
 }
 
@@ -54,9 +52,36 @@ fn initializeHashmap(mut commands : HashMap<char, fn()>) -> HashMap<char, fn()>{
     commands.insert(".".chars().next().unwrap(), || {bfcommands::output();});
 
     //loop
-    commands.insert("[".chars().next().unwrap(), || {bfcommands::loopStart();});
+    commands.insert("[".chars().next().unwrap(), || {loopStart();});
 
-    commands.insert("]".chars().next().unwrap(), || {bfcommands::LoopEnd();});
+    commands.insert("]".chars().next().unwrap(), || {LoopEnd();});
 
     return commands;
+}
+
+
+
+// on [
+pub fn loopStart(){
+    print!("start")
+}
+
+// on ]
+pub fn LoopEnd(){
+    print!("end")
+}
+
+pub fn runBFfrom(from : u128){
+    let file = "".to_string();
+
+    unsafe{
+        file = source.clone().unwrap();
+    }
+
+
+    for command in source.unwrap().chars(){
+        if let Some(&function) = commands.get(&command) {
+            function();
+        }
+    }
 }
